@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stelescan: read ancient inscriptions</title>
+<meta name="description" content="Point your phone at an ancient inscription and read it. Latin, Ancient Greek, Egyptian hieroglyphs, Ottoman Turkish and more. Coming soon.">
+<meta property="og:title" content="Stelescan">
+<meta property="og:description" content="Point your phone at an ancient inscription and read it.">
+<meta property="og:url" content="https://stelescan.com/">
+<meta property="og:type" content="website">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+  :root {
+    --bg: #f6f1e7;
+    --bg-alt: #ece4d4;
+    --stone: #d9cfbd;
+    --stone-dark: #b9ab92;
+    --ink: #2a2622;
+    --muted: #6b6156;
+    --accent: #9a3b1f;
+    --carve: #5b5145;
+    --card: #fbf8f2;
+    --line: #d6ccba;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1b1916;
+      --bg-alt: #24211d;
+      --stone: #3a352e;
+      --stone-dark: #4a443b;
+      --ink: #eee7da;
+      --muted: #b0a593;
+      --accent: #e0825f;
+      --carve: #d8ccb6;
+      --card: #24211d;
+      --line: #3b362f;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .serif { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+  header { padding: 22px 0; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; font-size: 15px; }
+  .brand svg { width: 26px; height: 26px; }
+
+  .hero { display: grid; grid-template-columns: 1.15fr .85fr; gap: 48px; align-items: center; padding: 40px 0 72px; }
+  h1 { font-size: clamp(38px, 6vw, 60px); line-height: 1.05; margin: 0 0 20px; font-weight: 600; letter-spacing: -.01em; }
+  .lead { font-size: 20px; color: var(--muted); margin: 0 0 28px; max-width: 34em; }
+  .badge { display: inline-block; padding: 7px 14px; border: 1px solid var(--accent); color: var(--accent); border-radius: 999px; font-size: 14px; font-weight: 600; letter-spacing: .04em; }
+
+  .stele { width: 100%; max-width: 340px; margin: 0 auto; display: block; }
+  .stele .slab { fill: var(--stone); stroke: var(--stone-dark); stroke-width: 2; }
+  .stele .txt { fill: var(--carve); font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; letter-spacing: 3px; }
+  .stele .scan { stroke: var(--accent); stroke-width: 3; fill: none; }
+  .stele .beam { fill: var(--accent); opacity: .12; }
+  .stele .tr { fill: var(--ink); font: 600 15px system-ui, sans-serif; }
+  .stele .trbox { fill: var(--card); stroke: var(--line); }
+
+  section { padding: 64px 0; }
+  section.alt { background: var(--bg-alt); }
+  h2 { font-size: clamp(28px, 4vw, 38px); margin: 0 0 12px; font-weight: 600; }
+  .sub { color: var(--muted); margin: 0 0 36px; max-width: 40em; }
+
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; list-style: none; padding: 0; margin: 0; counter-reset: s; }
+  .steps li { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px; counter-increment: s; }
+  .steps li::before { content: counter(s, upper-roman); display: block; font-family: "Iowan Old Style", Palatino, Georgia, serif; color: var(--accent); font-size: 24px; margin-bottom: 8px; }
+  .steps h3 { margin: 0 0 6px; font-size: 18px; }
+  .steps p { margin: 0; color: var(--muted); font-size: 16px; }
+
+  .scripts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .script { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+  .glyph { font-size: 30px; line-height: 1.2; min-height: 40px; color: var(--carve); }
+  .script h3 { margin: 10px 0 4px; font-size: 18px; }
+  .script p { margin: 0; color: var(--muted); font-size: 15px; }
+  .more { margin-top: 20px; color: var(--muted); font-size: 15px; }
+
+  .promise { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .promise h3 { margin: 0 0 6px; font-size: 18px; }
+  .promise p { margin: 0; color: var(--muted); }
+
+  footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; gap: 32px; padding-top: 16px; }
+    .steps, .scripts { grid-template-columns: repeat(2, 1fr); }
+    .promise { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 520px) {
+    .wrap { padding: 0 16px; }
+    .steps, .scripts { grid-template-columns: 1fr; }
+    .lead { font-size: 18px; }
+    section { padding: 48px 0; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap brand">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 29V9a8 8 0 0 1 16 0v20z" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M12 14h8M12 18h8M12 22h5" stroke="currentColor" stroke-width="2"/></svg>
+    Stelescan
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div>
+      <h1 class="serif">Read the stones.</h1>
+      <p class="lead">Point your phone at an ancient inscription. Stelescan finds the text, reads it, and translates it into your language, and it tells you honestly what it isn't sure about.</p>
+      <span class="badge">Coming soon</span>
+    </div>
+
+    <svg class="stele" viewBox="0 0 320 400" role="img" aria-label="A Roman tombstone reading DIS MANIBUS, with its translation 'To the spirits of the dead'">
+      <path class="slab" d="M40 390V110Q40 30 160 30Q280 30 280 110V390Z"/>
+      <rect class="beam" x="56" y="120" width="208" height="56"/>
+      <text class="txt" x="160" y="160" text-anchor="middle" font-size="34">D · M</text>
+      <text class="txt" x="160" y="215" text-anchor="middle" font-size="22">IVLIAE</text>
+      <text class="txt" x="160" y="250" text-anchor="middle" font-size="22">SECVNDAE</text>
+      <text class="txt" x="160" y="285" text-anchor="middle" font-size="22">VIX · AN · XXV</text>
+      <path class="scan" d="M52 136v-20h22M268 136v-20h-22M52 160v20h22M268 160v20h-22"/>
+      <rect class="trbox" x="52" y="316" width="216" height="54" rx="10"/>
+      <text class="tr" x="160" y="340" text-anchor="middle">Dis Manibus</text>
+      <text class="tr" x="160" y="358" text-anchor="middle" font-weight="400" font-size="13" fill="currentColor">"To the spirits of the dead"</text>
+    </svg>
+  </div>
+
+  <section class="alt">
+    <div class="wrap">
+      <h2 class="serif">How it works</h2>
+      <p class="sub">Inscriptions are worn, abbreviated and written without spaces. Stelescan is built for exactly that.</p>
+      <ol class="steps">
+        <li><h3>Capture</h3><p>Take a photo of a stone, a tablet or a monument. The app helps you get a clear, straight shot.</p></li>
+        <li><h3>Recognise</h3><p>It finds the text, works out the script and language, and reads the signs, even damaged ones.</p></li>
+        <li><h3>Transcribe</h3><p>You see the original text in a clean form, with abbreviations spelled out and gaps marked.</p></li>
+        <li><h3>Translate</h3><p>A translation in your language, plus a short note on what the inscription is and why it matters.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2 class="serif">Many scripts, one app</h2>
+      <p class="sub">From Roman tombstones to Ottoman fountains.</p>
+      <div class="scripts">
+        <div class="script"><div class="glyph serif">SPQR</div><h3>Latin</h3><p>Roman inscriptions across Europe and the Mediterranean.</p></div>
+        <div class="script"><div class="glyph serif">ΔΗΜΟΣ</div><h3>Ancient Greek</h3><p>Dedications, decrees and epitaphs.</p></div>
+        <div class="script"><div class="glyph"><svg viewBox="0 0 120 40" width="108" height="36" role="img" aria-label="Hieroglyphs: ankh, sun and water" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><ellipse cx="18" cy="11" rx="6" ry="8"/><path d="M18 19v19M8 21h20"/><circle cx="56" cy="20" r="11"/><circle cx="56" cy="20" r="2.5" fill="currentColor"/><path d="M82 16l5-5 5 5 5-5 5 5 5-5 5 5M82 28l5-5 5 5 5-5 5 5 5-5 5 5"/></svg></div><h3>Egyptian hieroglyphs</h3><p>Temples, tombs and museum pieces.</p></div>
+        <div class="script"><div class="glyph" lang="ota" dir="rtl">بسم الله</div><h3>Ottoman Turkish</h3><p>Fountains, mosques and gravestones.</p></div>
+      </div>
+      <p class="more">More scripts will follow, chosen by what our users find on their travels.</p>
+    </div>
+  </section>
+
+  <section class="alt">
+    <div class="wrap promise">
+      <div><h3>Honest about uncertainty</h3><p>Every unsure sign or word is highlighted. A confident wrong answer is worse than none.</p></div>
+      <div><h3>Works where you are</h3><p>Offline packs for archaeological sites and museums without signal.</p></div>
+      <div><h3>For curious people</h3><p>Built for travellers and history lovers, careful enough for students and teachers.</p></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">© 2026 Stelescan · stelescan.com</div>
+</footer>
+
+</body>
+</html>
